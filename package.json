@@ -1,0 +1,114 @@
+{
+  "name": "rename-my-window",
+  "displayName": "Rename My Window",
+  "description": "🏷️ Instantly rename any VS Code window with a single click or shortcut. No JSON editing, no settings files — just click, type, done.",
+  "version": "1.0.2",
+  "publisher": "NamethisWindow",
+  "author": {
+    "name": "Kivi Media"
+  },
+  "license": "MIT",
+  "icon": "icon.png",
+  "galleryBanner": {
+    "color": "#1e1e2e",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "rename",
+    "window",
+    "title",
+    "label",
+    "identify",
+    "workspace",
+    "name",
+    "productivity"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "renameMyWindow.rename",
+        "title": "🏷️ Rename This Window",
+        "category": "Rename My Window",
+        "icon": "$(tag)"
+      },
+      {
+        "command": "renameMyWindow.clear",
+        "title": "❌ Clear Window Name",
+        "category": "Rename My Window",
+        "icon": "$(close)"
+      },
+      {
+        "command": "renameMyWindow.addEmoji",
+        "title": "😎 Rename with Emoji Prefix",
+        "category": "Rename My Window",
+        "icon": "$(smiley)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "renameMyWindow.rename",
+        "key": "ctrl+shift+t",
+        "mac": "cmd+shift+t"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "renameMyWindow.rename",
+          "group": "navigation"
+        },
+        {
+          "command": "renameMyWindow.clear",
+          "group": "navigation"
+        },
+        {
+          "command": "renameMyWindow.addEmoji",
+          "group": "navigation"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "renameMyWindow.rename",
+          "group": "navigation@1"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Rename My Window",
+      "properties": {
+        "renameMyWindow.showStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the window name in the status bar (click to rename)"
+        },
+        "renameMyWindow.titleFormat": {
+          "type": "string",
+          "default": "${name} ✦ ${activeEditorShort}${separator}${rootName}",
+          "description": "Format for the window title. Use ${name} for your custom name."
+        },
+        "renameMyWindow.favoriteEmojis": {
+          "type": "array",
+          "default": ["🔥", "🚀", "💎", "⚡", "🎯", "🛠️", "🧪", "🌟", "💻", "📦", "🎨", "🐛", "✅", "🏗️", "📱"],
+          "description": "Emoji options shown in the quick-pick menu"
+        }
+      }
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kivimedia/rename-my-window"
+  },
+  "scripts": {
+    "package": "vsce package"
+  }
+}
