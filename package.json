@@ -2,7 +2,7 @@
   "name": "rename-my-window",
   "displayName": "Rename My Window",
   "description": "🏷️ Instantly rename any VS Code window with a single click or shortcut. No JSON editing, no settings files — just click, type, done.",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "publisher": "NamethisWindow",
   "author": {
     "name": "Kivi Media"
@@ -90,11 +90,6 @@
           "type": "boolean",
           "default": true,
           "description": "Show the window name in the status bar (click to rename)"
-        },
-        "renameMyWindow.titleFormat": {
-          "type": "string",
-          "default": "${name} ✦ ${activeEditorShort}${separator}${rootName}",
-          "description": "Format for the window title. Use ${name} for your custom name."
         },
         "renameMyWindow.favoriteEmojis": {
           "type": "array",

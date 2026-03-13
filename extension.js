@@ -15,11 +15,6 @@ function activate(context) {
   currentName = context.workspaceState.get('windowName')
     || context.globalState.get('windowName_' + getWorkspaceId());
 
-  // Apply saved name on startup
-  if (currentName) {
-    applyWindowTitle(currentName);
-  }
-
   // Create status bar item (always visible, clickable)
   statusBarItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Left,
@@ -37,7 +32,7 @@ function activate(context) {
   // === COMMAND: Rename This Window ===
   const renameCmd = vscode.commands.registerCommand('renameMyWindow.rename', async () => {
     const name = await vscode.window.showInputBox({
-      prompt: 'Give this window a name (shows in title bar & taskbar)',
+      prompt: 'Give this window a name (shows in the status bar)',
       placeHolder: 'e.g. Client Portal, My Blog, API Server...',
       value: currentName || '',
       validateInput: (value) => {
@@ -121,7 +116,7 @@ function activate(context) {
     vscode.window.showInformationMessage('Window name cleared! Back to default.');
   });
 
-  // Listen for config changes (only our own extension settings — never react to window.title)
+  // Listen for config changes
   const configListener = vscode.workspace.onDidChangeConfiguration(e => {
     if (e.affectsConfiguration('renameMyWindow.showStatusBar')) {
       const show = vscode.workspace.getConfiguration('renameMyWindow').get('showStatusBar', true);
@@ -129,11 +124,6 @@ function activate(context) {
         statusBarItem.show();
       } else {
         statusBarItem.hide();
-      }
-    }
-    if (e.affectsConfiguration('renameMyWindow.titleFormat')) {
-      if (currentName) {
-        applyWindowTitle(currentName);
       }
     }
   });
@@ -160,7 +150,6 @@ async function setName(context, name) {
   currentName = name;
   await context.workspaceState.update('windowName', name);
   await context.globalState.update('windowName_' + getWorkspaceId(), name);
-  applyWindowTitle(name);
   updateStatusBar();
 }
 
@@ -172,59 +161,7 @@ async function clearName(context) {
   currentName = undefined;
   await context.workspaceState.update('windowName', undefined);
   await context.globalState.update('windowName_' + getWorkspaceId(), undefined);
-  restoreDefaultTitle();
   updateStatusBar();
-}
-
-/**
- * Apply a custom window title.
- *
- * Always uses Workspace level when a folder is open (writes to .vscode/settings.json).
- * When no folder is open, we use Global level but include a unique token so
- * each window instance can detect if the global title still belongs to it.
- *
- * @param {string} name
- */
-function applyWindowTitle(name) {
-  const config = vscode.workspace.getConfiguration('renameMyWindow');
-  let format = config.get(
-    'titleFormat',
-    '${name} \u2726 ${activeEditorShort}${separator}${rootName}'
-  );
-
-  // Replace our custom ${name} placeholder with the actual name
-  const titleTemplate = format.replace(/\$\{name\}/g, name);
-
-  const windowConfig = vscode.workspace.getConfiguration('window');
-
-  // Always use Workspace level when a folder is open
-  if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
-    windowConfig.update('title', titleTemplate, vscode.ConfigurationTarget.Workspace);
-  } else {
-    // No folder open: still use Workspace level if possible via workaround.
-    // VS Code allows setting workspace-level config even without a folder in
-    // some contexts, but it may silently no-op. So we do both: set workspace
-    // (in case it works) and set global as fallback.
-    // This is the inherent limitation: two no-folder windows share global config.
-    windowConfig.update('title', titleTemplate, vscode.ConfigurationTarget.Global);
-  }
-}
-
-/**
- * Restore the default VS Code window title.
- * Only clears the same scope that applyWindowTitle wrote to,
- * so we never accidentally wipe another window's title.
- */
-function restoreDefaultTitle() {
-  const windowConfig = vscode.workspace.getConfiguration('window');
-
-  if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
-    // We wrote to Workspace scope — only clear Workspace scope
-    windowConfig.update('title', undefined, vscode.ConfigurationTarget.Workspace);
-  } else {
-    // We wrote to Global scope — clear Global scope
-    windowConfig.update('title', undefined, vscode.ConfigurationTarget.Global);
-  }
 }
 
 /**
